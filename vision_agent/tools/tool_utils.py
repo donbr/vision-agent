@@ -7,12 +7,15 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from vision_agent.utils.type_defs import LandingaiAPIKey
+import weave
+from config import WANDB_API_KEY, WEAVE_PROJECT
+weave.init(WEAVE_PROJECT)
 
 _LOGGER = logging.getLogger(__name__)
 _LND_API_KEY = LandingaiAPIKey().api_key
 _LND_API_URL = "https://api.staging.landing.ai/v1/agent"
 
-
+@weave.op()
 def send_inference_request(
     payload: Dict[str, Any], endpoint_name: str
 ) -> Dict[str, Any]:
