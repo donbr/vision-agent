@@ -8,7 +8,7 @@ from urllib3.util.retry import Retry
 
 from vision_agent.utils.type_defs import LandingaiAPIKey
 import weave
-from config import WANDB_API_KEY, WEAVE_PROJECT
+from .config import WANDB_API_KEY, WEAVE_PROJECT
 weave.init(WEAVE_PROJECT)
 
 _LOGGER = logging.getLogger(__name__)
