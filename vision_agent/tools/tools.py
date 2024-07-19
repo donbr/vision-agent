@@ -28,8 +28,6 @@ from vision_agent.utils.image_utils import (
     rle_decode,
 )
 import weave
-from .config import WEAVE_PROJECT
-weave.init(WEAVE_PROJECT)
 
 register_heif_opener()
 
