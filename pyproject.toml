@@ -40,6 +40,7 @@ tenacity = "^8.3.0"
 pillow-heif = "^0.16.0"
 pytube = "15.0.0"
 weave = "^0.50.10"
+python-dotenv = "^1.0.1"
 
 [tool.poetry.group.dev.dependencies]
 autoflake = "1.*"
