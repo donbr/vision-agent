@@ -27,7 +27,7 @@ from vision_agent.utils.image_utils import (
     normalize_bbox,
     rle_decode,
 )
-from langsmith import traceable
+import weave
 
 register_heif_opener()
 
@@ -58,7 +58,7 @@ _OCR_URL = "https://app.landing.ai/ocr/v1/detect-text"
 logging.basicConfig(level=logging.INFO)
 _LOGGER = logging.getLogger(__name__)
 
-@traceable
+@weave.op()
 def grounding_dino(
     prompt: str,
     image: np.ndarray,
@@ -119,7 +119,7 @@ def grounding_dino(
         )
     return return_data
 
-@traceable
+@weave.op()
 def owl_v2(
     prompt: str,
     image: np.ndarray,
@@ -174,7 +174,7 @@ def owl_v2(
         )
     return return_data
 
-@traceable
+@weave.op()
 def grounding_sam(
     prompt: str,
     image: np.ndarray,
@@ -239,7 +239,7 @@ def grounding_sam(
         )
     return return_data
 
-@traceable
+@weave.op()
 def extract_frames(
     video_uri: Union[str, Path], fps: float = 0.5
 ) -> List[Tuple[np.ndarray, float]]:
@@ -287,7 +287,7 @@ def extract_frames(
 
     return extract_frames_from_video(str(video_uri), fps)
 
-@traceable
+@weave.op()
 def ocr(image: np.ndarray) -> List[Dict[str, Any]]:
     """'ocr' extracts text from an image. It returns a list of detected text, bounding
     boxes with normalized coordinates, and confidence scores. The results are sorted
@@ -341,7 +341,7 @@ def ocr(image: np.ndarray) -> List[Dict[str, Any]]:
     ocr_results = sorted(output, key=lambda x: (x["bbox"][1], x["bbox"][0]))
     return ocr_results
 
-@traceable
+@weave.op()
 def loca_zero_shot_counting(image: np.ndarray) -> Dict[str, Any]:
     """'loca_zero_shot_counting' is a tool that counts the dominant foreground object given
     an image and no other information about the content. It returns only the count of
@@ -369,7 +369,7 @@ def loca_zero_shot_counting(image: np.ndarray) -> Dict[str, Any]:
     resp_data["heat_map"] = np.array(b64_to_pil(resp_data["heat_map"][0]))
     return resp_data
 
-@traceable
+@weave.op()
 def loca_visual_prompt_counting(
     image: np.ndarray, visual_prompt: Dict[str, List[float]]
 ) -> Dict[str, Any]:
@@ -404,7 +404,7 @@ def loca_visual_prompt_counting(
     resp_data["heat_map"] = np.array(b64_to_pil(resp_data["heat_map"][0]))
     return resp_data
 
-@traceable
+@weave.op()
 def florencev2_roberta_vqa(prompt: str, image: np.ndarray) -> str:
     """'florencev2_roberta_vqa' is a tool that takes an image and analyzes
     its contents, generates detailed captions and then tries to answer the given
@@ -433,7 +433,7 @@ def florencev2_roberta_vqa(prompt: str, image: np.ndarray) -> str:
     answer = send_inference_request(data, "tools")
     return answer["text"][0]  # type: ignore
 
-@traceable
+@weave.op()
 def git_vqa_v2(prompt: str, image: np.ndarray) -> str:
     """'git_vqa_v2' is a tool that can answer questions about the visual
     contents of an image given a question and an image. It returns an answer to the
@@ -462,7 +462,7 @@ def git_vqa_v2(prompt: str, image: np.ndarray) -> str:
     answer = send_inference_request(data, "tools")
     return answer["text"][0]  # type: ignore
 
-@traceable
+@weave.op()
 def clip(image: np.ndarray, classes: List[str]) -> Dict[str, Any]:
     """'clip' is a tool that can classify an image or a cropped detection given a list
     of input classes or tags. It returns the same list of the input classes along with
@@ -519,7 +519,7 @@ def vit_image_classification(image: np.ndarray) -> Dict[str, Any]:
     resp_data["scores"] = [round(prob, 4) for prob in resp_data["scores"]]
     return resp_data
 
-@traceable
+@weave.op()
 def vit_nsfw_classification(image: np.ndarray) -> Dict[str, Any]:
     """'vit_nsfw_classification' is a tool that can classify an image as 'nsfw' or 'normal'.
     It returns the predicted label and their probability scores based on image content.
@@ -546,7 +546,7 @@ def vit_nsfw_classification(image: np.ndarray) -> Dict[str, Any]:
     resp_data["scores"] = round(resp_data["scores"], 4)
     return resp_data
 
-@traceable
+@weave.op()
 def blip_image_caption(image: np.ndarray) -> str:
     """'blip_image_caption' is a tool that can caption an image based on its contents. It
     returns a text describing the image.
@@ -572,7 +572,7 @@ def blip_image_caption(image: np.ndarray) -> str:
     answer = send_inference_request(data, "tools")
     return answer["text"][0]  # type: ignore
 
-@traceable
+@weave.op()
 def florencev2_image_caption(image: np.ndarray, detail_caption: bool = True) -> str:
     """'florencev2_image_caption' is a tool that can caption or describe an image based
     on its contents. It returns a text describing the image.
@@ -600,7 +600,7 @@ def florencev2_image_caption(image: np.ndarray, detail_caption: bool = True) -> 
     answer = send_inference_request(data, "tools")
     return answer["text"][0]  # type: ignore
 
-@traceable
+@weave.op()
 def florencev2_object_detection(image: np.ndarray) -> List[Dict[str, Any]]:
     """'florencev2_object_detection' is a tool that can detect common objects in an
     image without any text prompt or thresholding. It returns a list of detected objects
@@ -644,7 +644,7 @@ def florencev2_object_detection(image: np.ndarray) -> List[Dict[str, Any]]:
         )
     return return_data
 
-@traceable
+@weave.op()
 def detr_segmentation(image: np.ndarray) -> List[Dict[str, Any]]:
     """'detr_segmentation' is a tool that can segment common objects in an
     image without any text prompt. It returns a list of detected objects
@@ -703,7 +703,7 @@ def detr_segmentation(image: np.ndarray) -> List[Dict[str, Any]]:
         )
     return return_data
 
-@traceable
+@weave.op()
 def depth_anything_v2(image: np.ndarray) -> np.ndarray:
     """'depth_anything_v2' is a tool that runs depth_anythingv2 model to generate a
     depth image from a given RGB image. The returned depth image is monochrome and
@@ -734,7 +734,7 @@ def depth_anything_v2(image: np.ndarray) -> np.ndarray:
     return_data = np.array(b64_to_pil(answer["masks"][0]).convert("L"))
     return return_data
 
-@traceable
+@weave.op()
 def generate_soft_edge_image(image: np.ndarray) -> np.ndarray:
     """'generate_soft_edge_image' is a tool that runs Holistically Nested edge detection
     to generate a soft edge image (HED) from a given RGB image. The returned image is
@@ -765,7 +765,7 @@ def generate_soft_edge_image(image: np.ndarray) -> np.ndarray:
     return_data = np.array(b64_to_pil(answer["masks"][0]).convert("L"))
     return return_data
 
-@traceable
+@weave.op()
 def dpt_hybrid_midas(image: np.ndarray) -> np.ndarray:
     """'dpt_hybrid_midas' is a tool that generates a normal mapped from a given RGB
     image. The returned RGB image is texture mapped image of the surface normals and the
@@ -797,7 +797,7 @@ def dpt_hybrid_midas(image: np.ndarray) -> np.ndarray:
     return_data = np.array(b64_to_pil(answer["masks"][0]).convert("RGB"))
     return return_data
 
-@traceable
+@weave.op()
 def generate_pose_image(image: np.ndarray) -> np.ndarray:
     """'generate_pose_image' is a tool that generates a open pose bone/stick image from
     a given RGB image. The returned bone image is RGB with the pose amd keypoints colored
@@ -828,7 +828,7 @@ def generate_pose_image(image: np.ndarray) -> np.ndarray:
     return_data = np.array(b64_to_pil(answer["masks"][0]).convert("RGB"))
     return return_data
 
-@traceable
+@weave.op()
 def template_match(
     image: np.ndarray, template_image: np.ndarray
 ) -> List[Dict[str, Any]]:
@@ -875,7 +875,7 @@ def template_match(
         )
     return return_data
 
-@traceable
+@weave.op()
 def closest_mask_distance(mask1: np.ndarray, mask2: np.ndarray) -> float:
     """'closest_mask_distance' calculates the closest distance between two masks.
 
@@ -928,7 +928,7 @@ def closest_mask_distance(mask1: np.ndarray, mask2: np.ndarray) -> float:
 
     return min_distance if min_distance != np.inf else 0.0
 
-@traceable
+@weave.op()
 def closest_box_distance(
     box1: List[float], box2: List[float], image_size: Tuple[int, int]
 ) -> float:
@@ -958,7 +958,7 @@ def closest_box_distance(
 
 # Utility and visualization functions
 
-@traceable
+@weave.op()
 def save_json(data: Any, file_path: str) -> None:
     """'save_json' is a utility function that saves data as a JSON file. It is helpful
     for saving data that contains NumPy arrays which are not JSON serializable.
@@ -983,7 +983,7 @@ def save_json(data: Any, file_path: str) -> None:
     with open(file_path, "w") as f:
         json.dump(data, f, cls=NumpyEncoder)
 
-@traceable
+@weave.op()
 def load_image(image_path: str) -> np.ndarray:
     """'load_image' is a utility function that loads an image from the given file path string.
 
@@ -1003,7 +1003,7 @@ def load_image(image_path: str) -> np.ndarray:
     image = Image.open(image_path).convert("RGB")
     return np.array(image)
 
-@traceable
+@weave.op()
 def save_image(image: np.ndarray, file_path: str) -> None:
     """'save_image' is a utility function that saves an image to a file path.
 
@@ -1021,7 +1021,7 @@ def save_image(image: np.ndarray, file_path: str) -> None:
     display(pil_image)
     pil_image.save(file_path)
 
-@traceable
+@weave.op()
 def save_video(
     frames: List[np.ndarray], output_video_path: Optional[str] = None, fps: float = 4
 ) -> str:
@@ -1053,7 +1053,7 @@ def save_video(
         _save_video_to_result(f.name)
         return f.name
 
-@traceable
+@weave.op()
 def _save_video_to_result(video_uri: str) -> None:
     """Saves a video into the result of the code execution (as an intermediate output)."""
     from IPython.display import display
@@ -1067,7 +1067,7 @@ def _save_video_to_result(video_uri: str) -> None:
         raw=True,
     )
 
-@traceable
+@weave.op()
 def overlay_bounding_boxes(
     image: np.ndarray, bboxes: List[Dict[str, Any]]
 ) -> np.ndarray:
@@ -1124,7 +1124,7 @@ def overlay_bounding_boxes(
         draw.text((box[0], box[1]), text, fill="black", font=font)
     return np.array(pil_image)
 
-@traceable
+@weave.op()
 def overlay_segmentation_masks(
     image: np.ndarray, masks: List[Dict[str, Any]]
 ) -> np.ndarray:
@@ -1175,7 +1175,7 @@ def overlay_segmentation_masks(
         pil_image = Image.alpha_composite(pil_image, mask_img)
     return np.array(pil_image)
 
-@traceable
+@weave.op()
 def overlay_heat_map(
     image: np.ndarray, heat_map: Dict[str, Any], alpha: float = 0.8
 ) -> np.ndarray:
@@ -1220,7 +1220,7 @@ def overlay_heat_map(
     )
     return np.array(combined)
 
-@traceable
+@weave.op()
 def get_tool_documentation(funcs: List[Callable[..., Any]]) -> str:
     docstrings = ""
     for func in funcs:
@@ -1228,7 +1228,7 @@ def get_tool_documentation(funcs: List[Callable[..., Any]]) -> str:
 
     return docstrings
 
-@traceable
+@weave.op()
 def get_tool_descriptions(funcs: List[Callable[..., Any]]) -> str:
     descriptions = ""
     for func in funcs:
@@ -1247,7 +1247,7 @@ def get_tool_descriptions(funcs: List[Callable[..., Any]]) -> str:
         descriptions += f"- {func.__name__}{inspect.signature(func)}: {description}\n"
     return descriptions
 
-@traceable
+@weave.op()
 def get_tools_df(funcs: List[Callable[..., Any]]) -> pd.DataFrame:
     data: Dict[str, List[str]] = {"desc": [], "doc": []}
 
